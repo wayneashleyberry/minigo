@@ -12,6 +12,15 @@ func f1() {
 	os.Stderr.Write(b2)
 }
 
+func f2() {
+	fprintf(os.Stdout, "hello os.File\n", nil)
+}
+
+func fprintf(file *os.File, format string, param interface{}) {
+	file.Write([]byte(format))
+}
+
 func main() {
-	f1()
+	//f1()
+	f2()
 }

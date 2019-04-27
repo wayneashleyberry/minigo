@@ -772,6 +772,14 @@ func (p *parser) registerDynamicType(gtype *Gtype) *Gtype {
 	return gtype
 }
 
+func (p *parser) isImportedName(ident identifier) bool {
+	if string(ident) == "os" {
+		return true
+	}
+
+	return false
+}
+
 // https://golang.org/ref/spec#Type
 func (p *parser) parseType() *Gtype {
 	p.traceIn(__func__)
@@ -782,14 +790,26 @@ func (p *parser) parseType() *Gtype {
 	for {
 		tok := p.readToken()
 		if tok.isTypeIdent() {
+			// pkgname or typename
 			ident := tok.getIdent()
+			var pkgName identifier
+			var pkgToSearch identifier
+			if p.isImportedName(ident) {
+				pkgName = ident
+				pkgToSearch = pkgName
+				p.expect(".")
+				//tok = p.readToken()
+				ident = p.expectIdent()
+			} else {
+				pkgName = p.currentPackageName
+			}
 			// unresolved
 			rel := &Relation{
 				tok:  tok,
-				pkg:  p.currentPackageName,
+				pkg:  pkgName,
 				name: ident,
 			}
-			p.tryResolve("", rel)
+			p.tryResolve(pkgToSearch, rel)
 			gtype = &Gtype{
 				typ:      G_REL,
 				relation: rel,
