@@ -101,8 +101,8 @@ func main() {
 	}
 
 	if len(sourceFiles) == 0 {
-		println("No input files.")
-		return
+		//println("No input files.")
+		//return
 	}
 
 	if tokenizeOnly {
@@ -117,7 +117,8 @@ func main() {
 	pForImport := &parser{}
 	// "fmt" depends on "os. So inject it in advance.
 	// Actually, dependency graph should be analyzed.
-	var imported []string = []string{"os"}
+	var imported []string = []string{"os", "fmt"}
+
 	for _, sourceFile := range sourceFiles {
 		bs := NewByteStreamFromFile(sourceFile)
 		astFile := pForImport.parseSourceFile(bs, nil, true)
@@ -193,11 +194,22 @@ func main() {
 	p.initPackage(pkgname)
 	p.scopes[pkgname] = newScope(nil, string(pkgname))
 
-	for _, sourceFile := range sourceFiles {
-		bs := NewByteStreamFromFile(sourceFile)
+	var code string = `
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Printf("hello world\n")
+}
+
+`
+	bs = NewByteStreamFromString("main.go", code)
+
+	//for _, sourceFile := range sourceFiles {
 		asf := p.parseSourceFile(bs, p.scopes[pkgname], false)
 		astFiles = append(astFiles, asf)
-	}
+	//}
 
 	if parseOnly {
 		if debugAst {
