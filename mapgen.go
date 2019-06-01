@@ -23,7 +23,7 @@ func (call *IrInterfaceMethodCall) emit(args []Expr) {
 	emit("# find method %s", call.methodName)
 	emit("mov (%%rax), %%r10") // address of receiverType
 
-	emit("mov $128, %%11")  // copy len
+	emit("mov $128, %%r11")  // copy len
 
 	emit("lea .M%s, %%rax", call.methodName) // index value
 	emit("mov %%rax, %%r12")                 // index value
